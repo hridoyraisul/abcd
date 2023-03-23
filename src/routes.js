@@ -5,6 +5,11 @@ import StudentList from "@/components/Home/StudentList.vue";
 
 const routes = [
     {
+        path: '/',
+        name: 'HomePage',
+        component: StudentAttendance
+    },
+    {
         path: '/student-attendance',
         name: 'StudentAttendance',
         component: StudentAttendance
