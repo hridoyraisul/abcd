@@ -2,7 +2,7 @@
   <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=".userAddModal">
     New User
   </button>
-  <UserTable :users="users"/>
+  <UserTable :users="users" :fetchUsers="fetchUsers"/>
 
   <!-- Modal start-->
   <div class="modal fade userAddModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -22,6 +22,10 @@
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" v-model="email" id="email">
               </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" v-model="password" id="password">
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -37,35 +41,38 @@
 <script>
 import UserTable from "@/components/Home/userComponents/UserTable.vue";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 
-const userData = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "fdkgdlsfkmb@abcd.com",
-  },
-  {
-    id: 2,
-    name: "John Doe2",
-    email: "fdkgdlsfkmb@abcd.com",
-  },
-  {
-    id: 3,
-    name: "John Doe3",
-    email: "fdkgdlsfkmb@abcd.com",
-  },
-  {
-    id: 4,
-    name: "John Doe4",
-    email: "fdkgdlsfkmb@abcd.com",
-  },
-  {
-    id: 5,
-    name: "John Doe5",
-    email: "fdkgdlsfkmb@abcd.com",
-  }
-];
+// const userData = ;
+//     [
+//   {
+//     id: 1,
+//     name: "John Doe",
+//     email: "fdkgdlsfkmb@abcd.com",
+//   },
+//   {
+//     id: 2,
+//     name: "John Doe2",
+//     email: "fdkgdlsfkmb@abcd.com",
+//   },
+//   {
+//     id: 3,
+//     name: "John Doe3",
+//     email: "fdkgdlsfkmb@abcd.com",
+//   },
+//   {
+//     id: 4,
+//     name: "John Doe4",
+//     email: "fdkgdlsfkmb@abcd.com",
+//   },
+//   {
+//     id: 5,
+//     name: "John Doe5",
+//     email: "fdkgdlsfkmb@abcd.com",
+//   }
+// ];
+
 
 
 
@@ -73,6 +80,9 @@ export default {
   name: "UserList",
   components: {
     UserTable
+  },
+  mounted() {
+    this.fetchUsers();
   },
   methods: {
     userCreateForm(){
@@ -84,27 +94,44 @@ export default {
         })
         return;
       }
-      const user = {
-        id: this.users.length + 1,
+      axios.post('http://127.0.0.1:8000/api/userRegister', {
         name: this.name,
         email: this.email,
-      }
-      this.users.push(user);
-      this.name = "";
-      this.email = "";
-      Swal.fire({
-        title: 'Success!',
-        text: 'User added successfully!',
-        icon: 'success'
-      })
-
+        password: this.password,
+      }).then(response => {
+        this.fetchUsers();
+        this.name = "";
+        this.email = "";
+        this.password = "";
+        Swal.fire({
+          title: 'Success!',
+          text: response.data.message,
+          icon: 'success'
+        })
+      }).catch(error => {
+        Swal.fire({
+          title: 'Failed!',
+          text: error.response.data.message,
+          icon: 'error'
+        })
+      });
+    },
+    fetchUsers() {
+      axios.get('http://127.0.0.1:8000/api/allUsers')
+          .then(response => {
+            this.users = response.data.data.data;
+          })
+          .catch(error => {
+            console.log(error.response.data.message);
+          });
     }
   },
   data(){
     return {
-      users: userData,
+      users: [],
       name: "",
       email: "",
+      password: "",
     }
   }
 }

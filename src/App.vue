@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import 'bootstrap/dist/js/bootstrap.min.js';
+
 //import UserLogin from "@/components/UserLogin.vue";
 import Home from "@/components/Home.vue";
 
