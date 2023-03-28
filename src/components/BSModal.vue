@@ -129,7 +129,6 @@ export default {
   },
   mounted() {
     this.bsModal = this.createModal();
-
     if (this.$refs["bootstrap__modal"]) {
       const modal = this.$refs["bootstrap__modal"];
       modal.addEventListener("hidden.bs.modal", (event) => {
@@ -143,7 +142,7 @@ export default {
     },
     modal(method = null, ...args) {
       if (!this.bsModal) {
-        throw new Error('[Modal Component]: "Instance creation failed."');
+        throw new Error('[Modal Component]: "Instance creation failed!"');
       }
 
       return this.bsModal[method](...args);

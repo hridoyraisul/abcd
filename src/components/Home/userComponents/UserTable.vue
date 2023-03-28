@@ -28,40 +28,7 @@
   </div>
 
   <!-- Modal start-->
-<!--  <div class="modal fade userEditModal" :class="{ 'show': showModal }"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">-->
-<!--    <div class="modal-dialog">-->
-<!--      <div class="modal-content">-->
-<!--        <div class="modal-header">-->
-<!--          <h1 class="modal-title fs-5" id="staticBackdropLabel">Update User</h1>-->
-<!--          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
-<!--        </div>-->
-<!--        <form v-on:submit.prevent="userForm">-->
-<!--          <div class="modal-body">-->
-
-<!--              <div class="mb-3">-->
-<!--                <label for="name" class="form-label">Name</label>-->
-<!--                <input type="text" class="form-control" v-model="userData.name" id="name">-->
-<!--              </div>-->
-<!--              <div class="mb-3">-->
-<!--                <label for="email" class="form-label">Email</label>-->
-<!--                <input type="email" class="form-control" v-model="userData.email" id="email">-->
-<!--              </div>-->
-<!--              <div class="mb-3">-->
-<!--                <label for="password" class="form-label">Password</label>-->
-<!--                <input type="password" class="form-control" v-model="password" id="password">-->
-<!--              </div>-->
-<!--          </div>-->
-<!--          <div class="modal-footer">-->
-<!--            <button type="button" @click="showModal= false" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>-->
-<!--            <button type="submit" class="btn btn-info">Save</button>-->
-<!--          </div>-->
-<!--        </form>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-  <!--Modal end-->
-
-  <BSModal ref="userEditModal">
+  <BSModal ref="userEditModal" @formSubmit="submitEditForm">
     <div class="mb-3">
       <label for="name" class="form-label">Name</label>
       <input type="text" class="form-control" v-model="userData.name" id="name">
@@ -70,7 +37,13 @@
       <label for="email" class="form-label">Email</label>
       <input type="email" class="form-control" v-model="userData.email" id="email">
     </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">New Password</label>
+      <input type="password" class="form-control" v-model="userData.password" id="password">
+    </div>
   </BSModal>
+  <!--Modal end-->
+
 
 </template>
 
@@ -78,9 +51,20 @@
 import Swal from 'sweetalert2'
 import axios from "axios";
 import BSModal  from "@/components/BSModal.vue";
+import {apiBaseURL} from "@/helper.js";
 
 export default {
   name: "UserTable",
+  data() {
+    return {
+      userData: {
+        id: "",
+        name: "",
+        email: "",
+        password: ""
+      }
+    };
+  },
   components: {
     BSModal
   },
@@ -88,99 +72,49 @@ export default {
     users: {
       type: Array,
       required: true,
-    },
-    fetchUsers: {
-      type: Function,
-      required: true,
-    },
+    }
   },
+  emits: ['user-reload'],
   methods: {
-    userForm: function () {
-      if (this.name === "" || this.email === "") {
-        Swal.fire({
-          title: 'Failed!',
-          text: 'Please fill all the fields!',
-          icon: 'error'
-        })
+    submitEditForm() {
+      if (this.userData.name === "" || this.userData.email === "") {
+        this.$swal("Please fill all the fields!","error", "Validation Error!");
         return;
       }
-      axios.put("http://127.0.0.1:8000/api/updateUser/" + this.userData.id,{
+      axios.put(apiBaseURL + "updateUser/" + this.userData.id,{
         id: this.userData.id,
         name: this.userData.name,
         email: this.userData.email,
-        password: this.password,
+        password: this.userData.password,
       }).then(response => {
-        this.showModal = false;
-        Swal.fire({
-          title: 'Updated!',
-          text: response.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK'
-        })
+        this.$refs.userEditModal.modal('hide');
+        this.$emit('user-reload');
+        this.$swal(response.data.message);
       }).catch(error => {
-        Swal.fire({
-          title: 'Failed!',
-          text: error.response.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK'
-        })
+        this.$swal(error.response.data.message,"error");
       });
     },
     processEdit(user) {
       this.userData = {...user};
       this.$refs.userEditModal.modal('show');
-      this.showModal = true;
     },
     processDelete(user) {
-      Swal.fire({
-        title:"Want to remove?",
-        text:"After removing "+user.name+" it will be lost",
-        type:"question",
-        icon: 'question',
-        confirmButtonColor:"#348cd4",
-        showCancelButton:!0,
-        confirmButtonText:"Yes, delete it!",
-        cancelButtonText:"No, cancel!",
-        confirmButtonClass:"btn sa-success btn-success mt-2 mr-2",
-        cancelButtonClass:"btn sa-error btn-danger ml-2 mt-2",
-        buttonsStyling:!1
-      }).then(function(t){
+      this.$swal("After removing "+user.name+" it will be lost","delete", "Want to remove this user?")
+          .then((t) => {
         if (t.value === true) {
-          axios.delete("http://127.0.0.1:8000/api/deleteUser/" + user.id).then(response => {
-            Swal.fire({
-              title: "Deleted!",
-              icon: 'success',
-              text: response.data.message,
-              type: "success",
-            });
+          axios.delete(apiBaseURL + "deleteUser/" + user.id).then(response => {
+            this.$swal(response.data.message,"success",'Deleted!');
+            this.$emit('user-reload');
           }).catch(error => {
-            Swal.fire({
-              title: "Failed!",
-              icon: 'error',
-              text: error.response.data.message,
-              type: "error",
-            });
+            this.$swal(error.response.data.message,"error");
           });
         } else {
-          t.dismiss===Swal.DismissReason.cancel&&Swal.fire({
-            title:"Cancelled",
-            icon: 'error',
-            text:"This user is safe now",
-            type:"error",
-          });
+          t.dismiss===Swal.DismissReason.cancel
+          &&
+          this.$swal("This user is safe now","error","Cancelled!");
         }
       });
-    }
-  },
-  data() {
-    return {
-      userData: {
-        id: "",
-        name: "",
-        email: "",
-      },
-      showModal: false,
-    };
+    },
   },
 }
 </script>
