@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
     <div class="container-fluid">
-      <router-link class="navbar-brand" to="/student-attendance">LOGO</router-link>
+      <router-link class="navbar-brand" to="/student-attendance">SAS </router-link>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -19,7 +19,7 @@
         </ul>
         <div class="d-flex">
           <strong class="text-white">{{userInfo?.name}}</strong> &nbsp;&nbsp;
-          <button type="button" class="btn btn-outline-light btn-sm">Logout</button>
+          <button @click="logout" type="button" class="btn btn-outline-light btn-sm">Logout</button>
         </div>
       </div>
     </div>
@@ -29,11 +29,19 @@
 <script>
 export default {
   name: "NavBar",
-  props: {
-    userInfo: {
-      type: Object,
-      required: true
-    },
+  data() {
+    return {
+      userInfo: this.$root.user,
+    }
+  },
+  methods: {
+    logout() {
+      this.loginStatus = false;
+      this.$root.token = null;
+      this.$root.user = {};
+      this.$toast('Logout Successfully');
+      this.$router.push('/');
+    }
   }
 }
 </script>

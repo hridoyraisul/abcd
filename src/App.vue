@@ -1,17 +1,25 @@
 <template>
-  <Home/>
+  <router-view></router-view>
 </template>
 
 <script>
 
-//import UserLogin from "@/components/UserLogin.vue";
-import Home from "@/components/Home.vue";
-
 export default {
   name: 'App',
-  components: {
-    //UserLogin
-   Home
+  mounted() {
+    this.authCheck();
+  },
+  methods: {
+    authCheck() {
+      if (!this.$root.token && !localStorage.getItem('token')) {
+        this.$router.push('/');
+      } else if (!localStorage.getItem('token')) {
+        this.$router.push('/');
+      } else {
+        this.$root.token = localStorage.getItem('token');
+        this.$root.user = JSON.parse(localStorage.getItem('user'));
+      }
+    }
   }
 }
 </script>

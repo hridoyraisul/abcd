@@ -25,6 +25,8 @@
         </tr>
       </tbody>
     </table>
+
+    <Pagination :totalItems="totalUsers" :itemsPerPage="itemsPerPage" @page-change="loadUserList" ></Pagination>
   </div>
 
   <!-- Modal start-->
@@ -48,10 +50,9 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2'
 import axios from "axios";
 import BSModal  from "@/components/BSModal.vue";
-import {apiBaseURL} from "@/helper.js";
+import Pagination from "@/components/pagination.vue";
 
 export default {
   name: "UserTable",
@@ -62,15 +63,27 @@ export default {
         name: "",
         email: "",
         password: ""
-      }
+      },
+      currentPage: this.currentPageNo,
+      itemsPerPage: 10,
+      totalUsers: this.total
     };
   },
   components: {
-    BSModal
+    BSModal,
+    Pagination
   },
   props: {
     users: {
       type: Array,
+      required: true,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
+    currentPageNo: {
+      type: Number,
       required: true,
     }
   },
@@ -81,14 +94,14 @@ export default {
         this.$swal("Please fill all the fields!","error", "Validation Error!");
         return;
       }
-      axios.put(apiBaseURL + "updateUser/" + this.userData.id,{
+      axios.put(this.$apiBaseURL + "updateUser/" + this.userData.id,{
         id: this.userData.id,
         name: this.userData.name,
         email: this.userData.email,
         password: this.userData.password,
       }).then(response => {
         this.$refs.userEditModal.modal('hide');
-        this.$emit('user-reload');
+        this.$emit('user-reload',this.currentPage);
         this.$swal(response.data.message);
       }).catch(error => {
         this.$swal(error.response.data.message,"error");
@@ -99,22 +112,23 @@ export default {
       this.$refs.userEditModal.modal('show');
     },
     processDelete(user) {
-      this.$swal("After removing "+user.name+" it will be lost","delete", "Want to remove this user?")
+      this.$swal("After removing "+user.name+" will be lost","delete", "Want to remove this user?")
           .then((t) => {
         if (t.value === true) {
-          axios.delete(apiBaseURL + "deleteUser/" + user.id).then(response => {
+          axios.delete(this.$apiBaseURL + "deleteUser/" + user.id).then(response => {
             this.$swal(response.data.message,"success",'Deleted!');
-            this.$emit('user-reload');
+            this.$emit('user-reload',this.currentPage);
           }).catch(error => {
             this.$swal(error.response.data.message,"error");
           });
         } else {
-          t.dismiss===Swal.DismissReason.cancel
-          &&
           this.$swal("This user is safe now","error","Cancelled!");
         }
       });
     },
+    loadUserList(currentPage){
+      this.$emit('user-reload',currentPage);
+    }
   },
 }
 </script>
