@@ -77,6 +77,7 @@ export default {
           .then(response => {
             this.students = response.data.data.data;
             this.totalStudents = response.data.data.total;
+            console.log(response.data.data);
           })
           .catch(error => {
             console.log(error.response.data.message);

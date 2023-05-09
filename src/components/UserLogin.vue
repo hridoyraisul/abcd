@@ -12,7 +12,7 @@
           <label for="exampleInputPassword1" class="form-label">Password</label>
           <input type="password" class="form-control" v-model="password">
         </div>
-        <button type="submit" class="btn btn-info" :class="{'disabled': submitStatus}">{{submitStatus ? 'Logging..' : 'Login'}}</button>
+        <button type="submit" class="btn btn-info" :class="{'disabled': submitStatus}">{{submitStatus ? 'Logging in..' : 'Login'}}</button>
       </form>
     </div>
   </div>
