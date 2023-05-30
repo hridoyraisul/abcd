@@ -42,7 +42,6 @@ export default {
       }
     },
     async formSubmit() {
-
       this.submitStatus = true;
       await axios
         .post(this.$apiBaseURL+"userLogin", {
@@ -51,11 +50,11 @@ export default {
         })
         .then((response) => {
           useUserStore().setUserName(response.data.data.user.name);
-          this.$toast(response.data.message);
           localStorage.setItem("token", response.data.data.token);
           localStorage.setItem("user", JSON.stringify(response.data.data.user));
           this.$root.user = response.data.data.user;
           this.$root.token = response.data.data.token;
+          this.$toast(response.data.message);
           this.$router.push('/student-attendance');
         })
         .catch((error) => {

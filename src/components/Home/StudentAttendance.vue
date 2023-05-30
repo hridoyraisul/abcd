@@ -77,8 +77,7 @@ export default {
         headers: {
           'Authorization': `Bearer ${this.$root.token}`
         }
-      })
-          .then(response => {
+      }).then(response => {
             this.students = response.data.data.data;
             this.totalStudents = response.data.data.total;
           })
