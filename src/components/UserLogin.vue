@@ -20,6 +20,7 @@
 
 <script>
 import axios from "axios";
+import {useUserStore} from "@/stores/UserStore";
 
 export default {
   name: "UserLogin",
@@ -41,6 +42,7 @@ export default {
       }
     },
     async formSubmit() {
+
       this.submitStatus = true;
       await axios
         .post(this.$apiBaseURL+"userLogin", {
@@ -48,6 +50,7 @@ export default {
           password: this.password,
         })
         .then((response) => {
+          useUserStore().setUserName(response.data.data.user.name);
           this.$toast(response.data.message);
           localStorage.setItem("token", response.data.data.token);
           localStorage.setItem("user", JSON.stringify(response.data.data.user));

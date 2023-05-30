@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import { useUserStore } from '@/stores/UserStore';
 
 export default {
   name: 'App',
@@ -16,6 +17,8 @@ export default {
       } else if (!localStorage.getItem('token')) {
         this.$router.push('/');
       } else {
+        const userStore = useUserStore();
+        userStore.setUserName(JSON.parse(localStorage.getItem('user')).name);
         this.$root.token = localStorage.getItem('token');
         this.$root.user = JSON.parse(localStorage.getItem('user'));
       }

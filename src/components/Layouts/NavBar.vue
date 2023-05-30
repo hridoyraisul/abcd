@@ -18,7 +18,7 @@
           </li>
         </ul>
         <div class="d-flex">
-          <strong class="text-white">{{userInfo?.name}}</strong> &nbsp;&nbsp;
+          <strong class="text-white">{{name}}</strong> &nbsp;&nbsp;
           <button @click="logout" type="button" class="btn btn-outline-light btn-sm">Logout</button>
         </div>
       </div>
@@ -27,19 +27,33 @@
 </template>
 
 <script>
+import { useUserStore } from '@/stores/UserStore';
+import axios from "axios";
 export default {
   name: "NavBar",
   data() {
+    const userStore = useUserStore();
     return {
-      userInfo: this.$root.user,
+      name: userStore.getUserName || '',
     }
   },
   methods: {
-    logout() {
-      this.$root.token = null;
-      this.$root.user = {};
-      this.$toast('Logout Successfully');
-      this.$router.push('/');
+     logout() {
+      axios.post(this.$apiBaseURL+'userLogout', {
+        user: this.$root.user,
+        token: this.$root.token
+      }, {
+        headers: {
+          Authorization: `Bearer ${this.$root.token}`
+        }
+      }).then((response) => {
+        this.$root.token = null;
+        this.$root.user = {};
+        this.$toast(response.data.message);
+        this.$router.push('/');
+      }).catch((error) => {
+        this.$toast(error.response.data.message, "error");
+      });
     }
   }
 }
