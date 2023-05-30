@@ -50,6 +50,8 @@ export default {
         this.$root.token = null;
         this.$root.user = {};
         this.$toast(response.data.message);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         this.$router.push('/');
       }).catch((error) => {
         this.$toast(error.response.data.message, "error");
