@@ -99,7 +99,11 @@ export default {
     async fetchStudents(currentPage){
       this.currentPage = currentPage;
       this.spinner = true;
-      await axios.get(this.$apiBaseURL+'allStudents?page='+currentPage)
+      await axios.get(this.$apiBaseURL+'allStudents?page='+currentPage,{
+        headers: {
+          'Authorization': `Bearer ${this.$root.token}`
+        }
+      })
           .then(response => {
             this.students = response.data.data.data;
             this.totalStudents = response.data.data.total;
@@ -118,7 +122,11 @@ export default {
         return;
       }
       if (this.student.id){
-        axios.put(this.$apiBaseURL+'updateStudent/'+this.student.id,this.student).then(response => {
+        axios.put(this.$apiBaseURL+'updateStudent/'+this.student.id,this.student,{
+          headers: {
+            'Authorization': `Bearer ${this.$root.token}`
+          }
+        }).then(response => {
           this.fetchStudents(this.currentPage);
           Object.keys(this.student).forEach(key => this.student[key] = "");
           this.$refs.studentModal.modal('hide');
@@ -127,7 +135,11 @@ export default {
           this.$swal(error.response.data.message,"error");
         });
       } else {
-        axios.post(this.$apiBaseURL+'createStudent',this.student).then(response => {
+        axios.post(this.$apiBaseURL+'createStudent',this.student,{
+          headers: {
+            'Authorization': `Bearer ${this.$root.token}`
+          }
+        }).then(response => {
           this.fetchStudents(this.currentPage);
           Object.keys(this.student).forEach(key => this.student[key] = "");
           this.$refs.studentModal.modal('hide');
@@ -145,7 +157,11 @@ export default {
       this.$swal("After removing "+student.name+" will be lost","delete", "Want to remove this student?")
           .then((t) => {
             if (t.value === true) {
-              axios.delete(this.$apiBaseURL + "deleteStudent/" + student.id).then(response => {
+              axios.delete(this.$apiBaseURL + "deleteStudent/" + student.id,{
+                headers: {
+                  'Authorization': `Bearer ${this.$root.token}`
+                }
+              }).then(response => {
                 this.$swal(response.data.message,"success",'Deleted!');
                 this.fetchStudents(this.currentPage);
               }).catch(error => {

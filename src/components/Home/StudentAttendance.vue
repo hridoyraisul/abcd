@@ -73,7 +73,11 @@ export default {
     async fetchStudents(currentPage) {
       this.spinner = true;
       this.currentPage = currentPage;
-      await axios.get(this.$apiBaseURL+'allStudents?page='+currentPage)
+      await axios.get(this.$apiBaseURL+'allStudents?page='+currentPage,{
+        headers: {
+          'Authorization': `Bearer ${this.$root.token}`
+        }
+      })
           .then(response => {
             this.students = response.data.data.data;
             this.totalStudents = response.data.data.total;
@@ -89,6 +93,10 @@ export default {
         student_id: student.id,
         user_id: 53,
         status: status
+      },{
+        headers: {
+          'Authorization': `Bearer ${this.$root.token}`
+        }
       }).then(response => {
         this.$toast(response.data.message);
         this.fetchStudents(this.currentPage);

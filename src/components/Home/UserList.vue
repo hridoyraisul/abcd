@@ -95,7 +95,11 @@ export default {
         return;
       }
       if (this.userInfo.id) {
-         axios.put(this.$apiBaseURL + "updateUser/" + this.userInfo.id,this.userInfo).then(response => {
+         axios.put(this.$apiBaseURL + "updateUser/" + this.userInfo.id,this.userInfo,{
+           headers: {
+             'Authorization': `Bearer ${this.$root.token}`
+           }
+         }).then(response => {
            this.fetchUsers(this.currentPage);
            this.$refs.userModal.modal('hide');
           this.$swal(response.data.message);
@@ -103,7 +107,11 @@ export default {
           this.$swal(error.response.data.message,"error");
         });
       } else {
-        axios.post(this.$apiBaseURL+'userRegister', this.userInfo).then(response => {
+        axios.post(this.$apiBaseURL+'userRegister', this.userInfo,{
+          headers: {
+            'Authorization': `Bearer ${this.$root.token}`
+          }
+        }).then(response => {
           this.fetchUsers(this.currentPage);
           Object.keys(this.userInfo).forEach(key => this.userInfo[key] = "");
           this.$refs.userModal.modal('hide');
@@ -115,7 +123,11 @@ export default {
     },
     async fetchUsers(currentPage) {
       this.spinner = true;
-      await axios.get(this.$apiBaseURL+'allUsers?page='+currentPage)
+      await axios.get(this.$apiBaseURL+'allUsers?page='+currentPage,{
+        headers: {
+          'Authorization': `Bearer ${this.$root.token}`
+        }
+      })
           .then(response => {
             this.users = response.data.data.data;
             this.totalUsers = response.data.data.total;
@@ -133,7 +145,11 @@ export default {
       this.$swal("After removing "+user.name+" will be lost","delete", "Want to remove this user?")
           .then((t) => {
             if (t.value === true) {
-              axios.delete(this.$apiBaseURL + "deleteUser/" + user.id).then(response => {
+              axios.delete(this.$apiBaseURL + "deleteUser/" + user.id,{
+                headers: {
+                  'Authorization': `Bearer ${this.$root.token}`
+                }
+              }).then(response => {
                 this.$swal(response.data.message,"success",'Deleted!');
                 this.fetchUsers(this.currentPage);
               }).catch(error => {

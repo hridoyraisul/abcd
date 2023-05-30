@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     logout() {
-      this.loginStatus = false;
       this.$root.token = null;
       this.$root.user = {};
       this.$toast('Logout Successfully');
